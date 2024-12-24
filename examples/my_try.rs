@@ -1,5 +1,4 @@
 use anyhow::Result;
-use macros::my_try;
 
 fn main() -> Result<()> {
     let ret = my_try!(f3(my_try!(f2(my_try!(f1("hello"))))));
@@ -17,4 +16,15 @@ fn f2(s: impl AsRef<str>) -> Result<String> {
 
 fn f3(s: impl AsRef<str>) -> Result<String> {
     Ok(format!("f3: {}", s.as_ref()))
+}
+
+// ? operator macro
+#[macro_export]
+macro_rules! my_try {
+    ($expr:expr) => {
+        match $expr {
+            Ok(v) => v,
+            Err(e) => return Err(e.into()),
+        }
+    };
 }
