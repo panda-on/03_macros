@@ -3,22 +3,42 @@
 use proc_macro::TokenStream;
 use quote::quote;
 
-// automatic implement From trait of enum variants for enums
+/// automatic implement From trait of enum variants for enums
+/// example:
+/// ```
+/// use enum_from::EnumFrom;
+/// #[derive(EnumFrom)]
+/// enum pancake{
+///     A,
+/// };
+///
+/// struct A;
+///
+/// fn main() {
+///    let a = A;
+///    let pancake = pancake::A.from(a);
+/// }
+/// ```
 #[proc_macro_derive(EnumFrom)]
 pub fn enum_from(input: TokenStream) -> TokenStream {
-    let input = syn::parse_macro_input!(input as syn::DeriveInput);
-    // println!("input: \n{:#?}", input);
-    let ident = input.ident;
-    // println!("ident: {}", ident);
+    let ast = syn::parse_macro_input!(input as syn::DeriveInput);
+    impl_enum_from_macro(&ast)
+}
 
+fn impl_enum_from_macro(ast: &syn::DeriveInput) -> TokenStream {
+    // get the ident of the enum
+    let ident = &ast.ident;
+    // get the generics of the enum
+    let generics = &ast.generics;
     // generate enum variants for every variant
-    let variants = match input.data {
-        syn::Data::Enum(data) => data.variants,
+    let variants = match &ast.data {
+        syn::Data::Enum(data) => &data.variants,
         _ => panic!("EnumFrom can only be used on enums"),
     };
 
     // for each variant, get the ident and the fields
     let from_impls = variants.iter().map(|variant| {
+        // get the ident of the variant
         let var = &variant.ident;
         match &variant.fields {
             syn::Fields::Unnamed(fields) => {
@@ -29,7 +49,7 @@ pub fn enum_from(input: TokenStream) -> TokenStream {
                     let field = fields.unnamed.first().expect("should have 1 field");
                     let ty = &field.ty;
                     quote! {
-                        impl From<#ty> for #ident {
+                        impl #generics From<#ty> for #ident #generics {
                             fn from(value: #ty) -> Self {
                                 Self::#var(value)
                             }
@@ -42,7 +62,6 @@ pub fn enum_from(input: TokenStream) -> TokenStream {
             syn::Fields::Named(_fields) => quote! {},
         }
     });
-
     quote! {
         #(#from_impls)*
     }

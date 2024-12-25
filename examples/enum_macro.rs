@@ -1,15 +1,15 @@
 use macros::EnumFrom;
 
 fn main() {
-    let left: Direction = 10.into();
-    let up: Direction = DirectionUp::new(10).into();
+    let left: Direction<i32> = 10.into();
+    let up: Direction<i32> = DirectionUp::new(10).into();
     println!("{:?}, {:?}", up, left);
 }
 
 #[allow(unused)]
 #[derive(Debug, EnumFrom)]
-enum Direction {
-    Up(DirectionUp),
+enum Direction<T> {
+    Up(DirectionUp<T>),
     Down,
     Left(u32),
     Right { a: u32 },
@@ -17,25 +17,12 @@ enum Direction {
 
 #[allow(unused)]
 #[derive(Debug)]
-struct DirectionUp {
-    speed: u32,
+struct DirectionUp<T> {
+    speed: T,
 }
 
-impl DirectionUp {
-    fn new(speed: u32) -> Self {
+impl<T> DirectionUp<T> {
+    fn new(speed: T) -> Self {
         Self { speed }
     }
 }
-
-// manually impl
-// impl From<u32> for Direction {
-//     fn from(v: u32) -> Self {
-//         Self::Left(v)
-//     }
-// }
-
-// impl From<DirectionUp> for Direction {
-//     fn from(v: DirectionUp) -> Self {
-//         Self::Up(v)
-//     }
-// }
