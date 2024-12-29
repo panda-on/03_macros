@@ -27,9 +27,8 @@ fn main() {
     // alternate failure branch should be taken:
     } else if i_like_letters {
         println!("Didn't match a number. Let's go with a letter!");
-    }else {
+    } else {
         // The condition evaluated false. This branch is the default:
         println!("I don't like letters. Let's go with an emoticon :)!");
     }
-
 }

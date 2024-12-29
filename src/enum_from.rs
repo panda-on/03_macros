@@ -17,7 +17,6 @@ use quote::quote;
 ///    let pancake = pancake::A.from(a);
 /// }
 /// ```
-
 pub(crate) fn impl_enum_from_macro(ast: &syn::DeriveInput) -> TokenStream {
     // get the ident of the enum
     let ident = &ast.ident;
